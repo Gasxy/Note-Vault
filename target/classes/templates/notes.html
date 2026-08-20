@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>My Notes - Note Vault</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background: #fff;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { margin: 0; color: #667eea; }
+        .user-info { display: flex; align-items: center; gap: 1rem; }
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge-admin { background: #fdecea; color: #c0392b; }
+        .badge-user { background: #e8f5e9; color: #2e7d32; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .alert-success { background: #e8f5e9; color: #2e7d32; }
+        .alert-error { background: #fdecea; color: #c0392b; }
+        .card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        .card h2 { margin-top: 0; color: #555; }
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        textarea { min-height: 80px; resize: vertical; }
+        button {
+            background: #667eea;
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background: #556cd6; }
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { color: #888; font-size: 0.85rem; text-transform: uppercase; }
+        .empty { text-align: center; padding: 2rem; color: #888; }
+        form.inline { display: inline; }
+        .owner { font-size: 0.85rem; color: #888; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Note Vault</h1>
+        <div class="user-info">
+            <span>Signed in as <strong th:text="${username}">user</strong></span>
+            <span class="badge" th:classappend="${isAdmin} ? 'badge-admin' : 'badge-user'"
+                  th:text="${isAdmin} ? 'ADMIN' : 'USER'">USER</span>
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" style="color:#667eea;">Admin Panel</a>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit" style="background:#888;">Logout</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="container">
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+        <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+        <div class="card">
+            <h2>Create a new note</h2>
+            <form th:action="@{/notes}" method="post" th:object="${newNote}">
+                <input type="text" th:field="*{title}" placeholder="Title" required>
+                <textarea th:field="*{content}" placeholder="Write your note here..." required></textarea>
+                <button type="submit">Save Note</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>
+                <span th:text="${isAdmin} ? 'All Notes (Admin View)' : 'My Notes'">My Notes</span>
+            </h2>
+
+            <div th:if="${#lists.isEmpty(notes)}" class="empty">
+                No notes yet. Create your first one above.
+            </div>
+
+            <table th:if="${not #lists.isEmpty(notes)}">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Content</th>
+                        <th sec:authorize="hasRole('ADMIN')">Owner</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="note : ${notes}">
+                        <td th:text="${note.title}">Title</td>
+                        <td th:text="${note.content}">Content</td>
+                        <td sec:authorize="hasRole('ADMIN')" class="owner" th:text="${note.ownerUsername}">user</td>
+                        <td>
+                            <form th:action="@{/notes/delete/{id}(id=${note.id})}" method="post" class="inline">
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - Note Vault</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background: #c0392b;
+            color: #fff;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header h1 { margin: 0; }
+        a.btn {
+            background: #fff;
+            color: #c0392b;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+        }
+        code { color: #9cdcfe; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin Panel</h1>
+        <div>
+            <a class="btn" th:href="@{/notes}">Back to Notes</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="card">
+            <h2>Welcome, <span th:text="${username}">admin</span></h2>
+            <p>You have administrative access to the Note Vault. From here you can manage all notes and users.</p>
+        </div>
+
+        <div class="card">
+            <h2>Admin REST Endpoints</h2>
+            <p>Authenticated with HTTP Basic as <code>admin / admin123</code>:</p>
+            <pre>
+GET    /api/notes          <code># list all notes (admin sees everything)</code>
+POST   /api/notes          <code># create a new note</code>
+DELETE /api/notes/{id}     <code># delete any note</code>
+            </pre>
+            <p>Example with curl:</p>
+            <pre>
+curl -u admin:admin123 http://localhost:8080/api/notes
+curl -u admin:admin123 -X POST http://localhost:8080/api/notes \
+     -H "Content-Type: application/json" \
+     -d "{\"title\":\"From API\",\"content\":\"Hello\"}"
+curl -u admin:admin123 -X DELETE http://localhost:8080/api/notes/1
+            </pre>
+        </div>
+    </div>
+</body>
+</html>
