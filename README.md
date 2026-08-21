@@ -29,27 +29,6 @@ A role-based note management application built with Spring Boot. Note-Vault lets
 - JDK 17 or later
 - Maven 3.8+
 
-## Getting Started
-
-Clone the repository and run the application:
-
-```bash
-mvn spring-boot:run
-```
-
-Then open http://localhost:8080 in your browser. You will be redirected to the login page.
-
-### Default Credentials
-
-The application ships with two in-memory users:
-
-| Username | Password   | Role  |
-|----------|------------|-------|
-| `user`   | `password` | USER  |
-| `admin`  | `admin123` | ADMIN |
-
-> These credentials are intended for development and demo only. Replace the `InMemoryUserDetailsManager` in `SecurityConfig` with a persistent user store before deploying anywhere.
-
 ## Project Structure
 
 ```
