@@ -121,7 +121,3 @@ Application settings live in `src/main/resources/application.properties`. The H2
 - CSRF protection is enabled for browser endpoints and disabled for `/api/**` and `/h2-console/**` to ease API testing.
 - HTTP Basic auth is enabled for the REST API; the UI uses form login.
 - Frame options are disabled globally so the H2 console can render.
-
-## License
-
-Released under the MIT License. See `LICENSE` if you add one.
