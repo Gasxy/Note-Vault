@@ -136,3 +136,53 @@ Format: date → What / Where / Why / How / Impact.
 - **Impact:** Docs only. Establishes a new convention — entries are
             session-scoped, not per-commit, and updated only when prompted
             at the end of a session.
+
+---
+
+## [2026-08-29] — Fix Spring Security 6 frame-options compile error (d3ebcaa)
+
+- **What:**  Resolved the `mvn spring-boot:run` compilation failure
+            caused by an invalid method reference for disabling frame
+            options in `SecurityConfig`.
+- **Where:** `src/main/java/com/example/notevault/config/SecurityConfig.java:79`
+            (and removed the now-unused `AbstractHttpConfigurer` import
+            on line 6).
+- **Why:**   `headers.frameOptions(...)` in Spring Security 6 expects a
+            `Customizer<FrameOptionsConfig>` — a lambda that receives a
+            `FrameOptionsConfig` and returns void. The previous code
+            passed `AbstractHttpConfigurer::disable`, which the compiler
+            resolved as an instance method reference with the signature
+            `(FrameOptionsConfig) -> Result`, then complained because
+            `AbstractHttpConfigurer.disable()` takes no arguments:
+
+                required: no arguments
+                found:    ...FrameOptionsConfig
+
+            The original code only ever compiled against Spring
+            Security 5.x semantics; it never matched Spring Security 6,
+            so the project could not be built at all.
+- **How:**   Replaced the bad reference with a direct lambda call on
+            the `FrameOptionsConfig` instance:
+
+                .frameOptions(frame -> frame.disable())
+
+            and dropped the now-unused `AbstractHttpConfigurer` import.
+            Semantic intent is unchanged: frame options remain disabled
+            so the H2 console can render.
+- **Impact:** Build fix. `mvn spring-boot:run` now succeeds, the app
+            boots cleanly on port 8080, the seeded users (`user` /
+            `password`, `admin` / `admin123`) authenticate, and
+            `GET /api/notes` returns the four seed notes as JSON. No
+            behavioral change at runtime — only the same disable-frame-
+            options effect, expressed in the API the current Spring
+            Security version actually accepts.
+
+### Follow-up observed (not addressed in this entry)
+- `target/` build artifacts are tracked by git (initial commit
+  included them). A `.gitignore` excluding `target/` would be a
+  separate, non-urgent cleanup.
+- `spring.jpa.open-in-view is enabled by default` warning emitted at
+  startup — could be explicitly disabled via
+  `spring.jpa.open-in-view=false` in `application.properties`.
+- `org.hibernate.orm.deprecation` warning about explicitly setting
+  `H2Dialect` — line can be removed from `application.properties`.
